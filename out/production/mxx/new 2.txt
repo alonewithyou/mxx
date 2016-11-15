@@ -1,0 +1,509 @@
+import java.util.*;
+
+public class Function {
+    public String name;
+    public int size;
+	public int require = 0;
+    public int baseid;
+    public List<Address> args;
+    public List<Quadruple> body;
+
+    public Function() {
+        name = null; 
+        size = 0;
+        args = new LinkedList<Address>();
+        body = new LinkedList<Quadruple>();
+    }
+
+    void writeload(String tar,Address ori){
+        if (ori.getClass().getSimpleName().equals("Temp")){
+            Temp tmp = (Temp) ori;
+            if (tmp.universal){
+                System.out.println("lw "+tar+", tmp"+tmp.num);
+            }
+            else{
+                System.out.println("lw "+tar+", "+tmp.calcdis(baseid,require) + "($sp)");
+            }
+        }
+        else{
+            System.out.println("li "+tar+", "+((IntegerConst)ori).value);
+        }
+    }
+
+    void writeStore(String tar,Address ori){
+
+    }
+
+    public void printMIPS(Map<String,Function> table){
+		//System.out.println("basid = "+baseid+"; require = "+require);
+        System.out.println(name+":");
+        if  (name.equals("main")){
+            List<Quadruple> bb = body;
+            body = Temp.origins;
+
+            System.out.println("sub $sp, $sp, "+(require + 33) * 4);
+        }
+        for (int i=0;i<body.size();++i){
+            if (body.get(i) == null)    continue;
+            String type = body.get(i).getClass().getSimpleName();
+            if (type.equals("Call")){
+                Call cur = (Call) body.get(i);
+                String nam = cur.callee;
+                Address ttt;
+
+                if (nam.equals("toString")){
+                    ttt = cur.paras.get(0);
+                    writeload("$a0",ttt);
+                    if (ttt.getClass().getSimpleName().equals("Temp"))
+                        System.out.println("lw $a0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    else
+                        System.out.println("li $a0, " + ((IntegerConst)ttt).value);
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__toString");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("println")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__println");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    continue;
+                }
+
+                if (nam.equals("print")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__print");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    continue;
+                }
+
+                if (nam.equals("getString")){
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__getString");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("getInt")){
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__getInt");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("length")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__string.length");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("substring")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    ttt = cur.paras.get(1);
+                    if (ttt.getClass().getSimpleName().equals("Temp"))
+                        System.out.println("lw $a1, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    else
+                        System.out.println("li $a1, " + ((IntegerConst)ttt).value);
+
+                    ttt = cur.paras.get(2);
+                    if (ttt.getClass().getSimpleName().equals("Temp"))
+                        System.out.println("lw $a2, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    else
+                        System.out.println("li $a2, " + ((IntegerConst)ttt).value);
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__string.substring");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("parseInt")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__string.parseInt");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("ord")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    ttt = cur.paras.get(1);
+                    if (ttt.getClass().getSimpleName().equals("Temp"))
+                        System.out.println("lw $a1, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    else
+                        System.out.println("li $a1, " + ((IntegerConst)ttt).value);
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__string.ord");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("stringunion")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    con = (Temp) cur.paras.get(1);
+                    if (con.strconst)
+                        System.out.println("la $a1, tmp" + con.num);
+                    else
+                        System.out.println("lw $a1, " + con.calcdis(baseid,require) + "($sp)");
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__stringConcatenate");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("stringequ")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    con = (Temp) cur.paras.get(1);
+                    if (con.strconst)
+                        System.out.println("la $a1, tmp" + con.num);
+                    else
+                        System.out.println("lw $a1, " + con.calcdis(baseid,require) + "($sp)");
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__stringIsEqual");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("stringneq")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    con = (Temp) cur.paras.get(1);
+                    if (con.strconst)
+                        System.out.println("la $a1, tmp" + con.num);
+                    else
+                        System.out.println("lw $a1, " + con.calcdis(baseid,require) + "($sp)");
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__stringNeq");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("stringless")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    con = (Temp) cur.paras.get(1);
+                    if (con.strconst)
+                        System.out.println("la $a1, tmp" + con.num);
+                    else
+                        System.out.println("lw $a1, " + con.calcdis(baseid,require) + "($sp)");
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__stringLess");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                if (nam.equals("stringlarge")){
+                    Temp con = (Temp) cur.paras.get(0);
+                    if (con.strconst)
+                        System.out.println("la $a0, tmp" + con.num);
+                    else
+                        System.out.println("lw $a0, " + con.calcdis(baseid,require) + "($sp)");
+
+                    con = (Temp) cur.paras.get(1);
+                    if (con.strconst)
+                        System.out.println("la $a1, tmp" + con.num);
+                    else
+                        System.out.println("lw $a1, " + con.calcdis(baseid,require) + "($sp)");
+
+                    System.out.println("move $t5, $ra");
+                    System.out.println("sw $t5, 4($sp)");
+                    System.out.println("jal " + "func__stringLarge");
+                    System.out.println("lw $t5, 4($sp)");
+                    System.out.println("move $ra, $t5");
+
+                    ttt = cur.ret;
+                    System.out.println("sw $v0, " + ((Temp)ttt).calcdis(baseid,require) + "($sp)");
+                    continue;
+                }
+
+                Function Callee = (Function) table.get(cur.callee);
+                List<Address> para = cur.paras;
+
+                int needSpace = (Callee.require + 33) * 4;
+                System.out.println("sub $sp, $sp, "+needSpace);
+
+                int curpos = (Callee.require + 33) * 4;
+
+                if	(para.size()>0)
+					for (int j=0;j<para.size();++j){
+						Address tp = para.get(para.size()-j-1);
+						//System.out.println("oridelta :" + tp.calcdis(baseid,require)+ " $tmp" + tp.num);
+						if (tp.getClass().getSimpleName().equals("Temp"))
+                            System.out.println("lw $t0, " + (needSpace+((Temp)tp).calcdis(baseid,require)) + "($sp)");
+                        else
+                            System.out.println("li $t0, " + ((IntegerConst)tp).value);
+						System.out.println("sw $t0, " + (Callee.require + 33 - j) * 4 + "($sp)");
+					}
+				
+				System.out.println("move $t5, $ra");
+                System.out.println("sw $t5, 4($sp)");
+                System.out.println("jal " + cur.callee);
+                System.out.println("lw $t5, 4($sp)");
+                System.out.println("move $ra, $t5");
+                System.out.println("add $sp, $sp, "+needSpace);
+
+                if (cur.ret != null){
+                    Temp tp = (Temp) cur.ret;
+                    System.out.println("sw $v0, "+tp.calcdis(baseid,require)+"($sp)");
+                }
+            }
+            if (type.equals("Assign")){
+                if (((Assign)body.get(i)).src.getClass().getSimpleName().equals("Temp")){
+                    Temp tsrc = (Temp)((Assign)body.get(i)).src;
+                    System.out.println("lw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+                }
+                else{
+                    System.out.println("li $t0, " + ((IntegerConst)((Assign)body.get(i)).src).value);
+                }
+                Temp tdest = (Temp)((Assign)body.get(i)).dest;
+                System.out.println("sw $t0, " + tdest.calcdis(baseid,require) + "($sp)");
+            }
+            if (type.equals("Jump")){
+                System.out.println("b label"+((Jump)body.get(i)).dest.num);
+            }
+            if (type.equals("Label")){
+                System.out.println("label"+((Label)body.get(i)).num+':');
+            }
+            if (type.equals("Alloc")){
+                Temp tsrc = (Temp)((Alloc)body.get(i)).dest;
+                System.out.println("lw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+                if (((Alloc)body.get(i)).size.getClass().getSimpleName().equals("Temp"))
+                    System.out.println("lw $a0, "+((Temp)((Alloc)body.get(i)).size).calcdis(baseid,require)+"($sp)");
+                else
+                    System.out.println("li $a0, "+((IntegerConst)((Alloc)body.get(i)).size).value);
+                System.out.println("li $v0, 9");
+                System.out.println("syscall");
+                System.out.println("move $t0, $v0");
+                System.out.println("sw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+            }
+            if (type.equals("Load")){
+                Load load = (Load) body.get(i);
+                Temp tsrc = (Temp) load.src;
+                System.out.println("lw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+                if (load.offset != 0)   System.out.println("add $t0, $t0, "+load.offset);
+                System.out.println("lw $t1, 0($t0)");
+                Temp tdest = (Temp) load.dest;
+                System.out.println("sw $t1, " + tdest.calcdis(baseid,require) + "($sp)");            }
+            if (type.equals("Store")){
+                Store store = (Store) body.get(i);
+                Temp tsrc = (Temp) store.src;
+                System.out.println("lw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+                Temp tdest = (Temp) store.dest;
+                System.out.println("lw $t1, " + tdest.calcdis(baseid,require) + "($sp)");
+                if (store.offset != 0)  System.out.println("add $t1, $t1, "+store.offset);
+                System.out.println("sw $t0 0($t1)");
+            }
+            if (type.equals("ArithmeticExpr")){
+                ArithmeticExpr tar = (ArithmeticExpr) body.get(i);
+                tar.printMIPS(baseid,require);
+            }
+            if (type.equals("RelationalExpr")){
+                RelationalExpr tar = (RelationalExpr) body.get(i);
+                tar.printMIPS(baseid,require);
+            }
+            if (type.equals("Br")){
+                Temp tsrc = (Temp)((Br)body.get(i)).src;
+                System.out.println("lw $t0, " + tsrc.calcdis(baseid,require) + "($sp)");
+                System.out.println("bne $t0, $zero, label"+((Label)((Br)body.get(i)).label1).num);
+                System.out.println("beq $t0, $zero, label"+((Label)((Br)body.get(i)).label2).num);
+            }
+            if (type.equals("Return")){
+                if (((Return)body.get(i)).value != null){
+                    if (((Return)body.get(i)).value.getClass().getSimpleName().equals("Temp")){
+                        Temp key = (Temp)((Return)body.get(i)).value;
+                        System.out.println("lw $v0, " + key.calcdis(baseid,require) + "($sp)");
+                    }
+                    else
+                        System.out.println("li $v0 " + ((IntegerConst)((Return)body.get(i)).value).value);
+                }
+
+                System.out.println("jr $ra");
+            }
+        }
+        if ((body.size()==0) || (!body.get(body.size()-1).getClass().getSimpleName().equals("Return"))){
+            System.out.println("jr $ra");
+        }
+    }
+
+    public void print(){
+        System.out.print("func "+name);
+        for (int i=0;i<args.size();++i){
+            System.out.print(" $tmp"+((Temp)args.get(i)).num);
+        }
+        System.out.println(" {");
+        for (int i=0;i<body.size();++i){
+            if (body.get(i) == null)    continue;
+            String type = body.get(i).getClass().getSimpleName();
+            //System.out.println(type);
+            if (type.equals("Call")){
+                if (((Call)body.get(i)).ret != null)    System.out.print("$tmp"+((Temp)((Call)body.get(i)).ret).num+" = ");
+                System.out.print("call "+((Call)body.get(i)).callee);
+                List<Address> p = ((Call)body.get(i)).paras;
+                if (p.size() > 0){
+                    for (int j=p.size()-1;j>=0;--j){
+						if	(p.get(j).getClass().getSimpleName().equals("Temp"))
+							System.out.print(" $tmp"+((Temp)p.get(j)).num);
+						else
+							System.out.print(" "+((IntegerConst)p.get(j)).value);
+					}
+                }
+                System.out.println();
+            }
+            if (type.equals("Assign")){
+                System.out.print("$tmp"+((Temp)((Assign)body.get(i)).dest).num+" = move ");
+                if (((Assign)body.get(i)).src.getClass().getSimpleName().equals("Temp"))
+                    System.out.println("$tmp"+((Temp)((Assign)body.get(i)).src).num);
+                else
+                    System.out.println(((IntegerConst)((Assign)body.get(i)).src).value);
+            }
+            if (type.equals("Jump")){
+                System.out.println("jump %label"+((Jump)body.get(i)).dest.num);
+            }
+            if (type.equals("Label")){
+                //if ((i>0) && (body.get(i-1).getClass().getSimpleName().equals("Label")))    continue;
+                System.out.println("%label"+((Label)body.get(i)).num+':');
+            }
+            if (type.equals("Alloc")){
+                System.out.print("$tmp"+((Temp)((Alloc)body.get(i)).dest).num+" = alloc ");
+                if (((Alloc)body.get(i)).size.getClass().getSimpleName().equals("Temp")){
+                    System.out.println("$tmp"+((Temp)((Alloc)body.get(i)).size).num);
+                }
+                else{
+                    System.out.println(((IntegerConst)((Alloc)body.get(i)).size).value);
+                }
+            }
+            if (type.equals("Load")){
+                System.out.println("$tmp"+((Temp)((Load)body.get(i)).dest).num+" = load "+((Load)body.get(i)).size+" $tmp"+((Temp)((Load)body.get(i)).src).num+" "+((Load)body.get(i)).offset);
+            }
+            if (type.equals("Store")){
+                System.out.println("store "+((Store)body.get(i)).size+" $tmp"+((Temp)((Store)body.get(i)).dest).num+" $tmp"+((Temp)((Store)body.get(i)).src).num+" "+
+                        ((Store)body.get(i)).offset);
+            }
+            if (type.equals("ArithmeticExpr")){
+                ArithmeticExpr tar = (ArithmeticExpr) body.get(i);
+                tar.print();
+            }
+            if (type.equals("RelationalExpr")){
+                RelationalExpr tar = (RelationalExpr) body.get(i);
+                tar.print();
+            }
+            if (type.equals("Br")){
+                System.out.println("br $tmp"+((Temp)((Br)body.get(i)).src).num+" %label"+((Label)((Br)body.get(i)).label1).num+" %label"+((Label)((Br)body.get(i)).label2).num);
+            }
+            if (type.equals("Return")){
+                System.out.print("ret");
+                if (((Return)body.get(i)).value != null){
+                    if (((Return)body.get(i)).value.getClass().getSimpleName().equals("Temp"))
+                        System.out.println(" $tmp"+((Temp)((Return)body.get(i)).value).num);
+                    else
+                        System.out.println(" "+((IntegerConst)((Return)body.get(i)).value).value);
+                }
+                else
+                    System.out.println("");
+            }
+        }
+        System.out.println("}");
+    }
+}

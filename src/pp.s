@@ -1,0 +1,1 @@
+$$ \frac{$Pr_{k,m}[m=m'\cap Enc_k(m)=c]$}{Pr_{k,m}[Enc_k(m)=c}}$$

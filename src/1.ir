@@ -1,0 +1,224 @@
+func tak $tmp4 $tmp5 $tmp6 {
+%label10000:
+$tmp7 = slt $tmp5 $tmp4
+br $tmp7 %label0 %label1
+%label0:
+$tmp8 = sub $tmp6 1
+$tmp9 = call tak $tmp8 $tmp4 $tmp5
+$tmp10 = sub $tmp5 1
+$tmp11 = call tak $tmp10 $tmp6 $tmp4
+$tmp12 = sub $tmp4 1
+$tmp13 = call tak $tmp12 $tmp5 $tmp6
+$tmp14 = call tak $tmp13 $tmp11 $tmp9
+$tmp15 = add 1 $tmp14
+ret $tmp15
+jump %label2
+%label1:
+ret $tmp6
+jump %label2
+%label2:
+}
+
+func main {
+%label1111:
+$tmp18 = move 4
+$tmp19 = move 4
+$tmp19 = add $tmp19 1
+$tmp17 = mul 4 $tmp19
+$tmp20 = alloc $tmp17
+store 4 $tmp20 $tmp18 0
+$tmp16 = move $tmp20
+$tmp25 = move 5
+$tmp26 = move 5
+$tmp26 = add $tmp26 1
+$tmp24 = mul 4 $tmp26
+$tmp27 = alloc $tmp24
+store 4 $tmp27 $tmp25 0
+$tmp23 = move $tmp27
+jump %label16
+%label16:
+$tmp28 = move 0
+$tmp21 = move $tmp28
+jump %label20
+%label20:
+$tmp29 = slt $tmp21 4
+br $tmp29 %label21 %label22
+%label21:
+$tmp31 = move 11
+$tmp32 = move 11
+$tmp32 = add $tmp32 1
+$tmp30 = mul 4 $tmp32
+$tmp33 = alloc $tmp30
+store 4 $tmp33 $tmp31 0
+$tmp34 = move $tmp16
+$tmp35 = move $tmp21
+$tmp35 = add $tmp35 1
+$tmp36 = mul $tmp35 4
+$tmp36 = add $tmp34 $tmp36
+store 4 $tmp36 $tmp33 0
+$tmp37 = move $tmp21
+$tmp21 = add $tmp21 1
+jump %label20
+%label22:
+jump %label15
+%label15:
+$tmp38 = move 0
+$tmp21 = move $tmp38
+jump %label23
+%label23:
+$tmp39 = slt $tmp21 4
+br $tmp39 %label24 %label25
+%label24:
+$tmp40 = move 0
+$tmp22 = move $tmp40
+jump %label26
+%label26:
+$tmp41 = slt $tmp22 10
+br $tmp41 %label27 %label28
+%label27:
+$tmp42 = move 888
+$tmp43 = move $tmp16
+$tmp44 = move $tmp21
+$tmp44 = add $tmp44 1
+$tmp45 = mul $tmp44 4
+$tmp45 = add $tmp43 $tmp45
+$tmp46 = load 4 $tmp45 0
+$tmp47 = move $tmp46
+$tmp48 = move $tmp22
+$tmp48 = add $tmp48 1
+$tmp49 = mul $tmp48 4
+$tmp49 = add $tmp47 $tmp49
+store 4 $tmp49 $tmp42 0
+$tmp50 = move $tmp22
+$tmp22 = add $tmp22 1
+jump %label26
+%label28:
+$tmp51 = move $tmp21
+$tmp21 = add $tmp21 1
+jump %label23
+%label25:
+jump %label14
+%label14:
+$tmp52 = move 0
+$tmp21 = move $tmp52
+jump %label29
+%label29:
+$tmp53 = slt $tmp21 5
+br $tmp53 %label30 %label31
+%label30:
+$tmp54 = alloc 8
+$tmp55 = move $tmp23
+$tmp56 = move $tmp21
+$tmp56 = add $tmp56 1
+$tmp57 = mul $tmp56 4
+$tmp57 = add $tmp55 $tmp57
+store 4 $tmp57 $tmp54 0
+$tmp58 = neg 1
+$tmp59 = move $tmp23
+$tmp60 = move $tmp21
+$tmp60 = add $tmp60 1
+$tmp61 = mul $tmp60 4
+$tmp61 = add $tmp59 $tmp61
+$tmp62 = load 4 $tmp61 0
+$tmp63 = add $tmp62 0
+store 4 $tmp63 $tmp58 0
+$tmp64 = move $tmp21
+$tmp21 = add $tmp21 1
+jump %label29
+%label31:
+jump %label13
+%label13:
+$tmp65 = move 0
+$tmp21 = move $tmp65
+jump %label33
+%label33:
+$tmp66 = sle $tmp21 3
+br $tmp66 %label34 %label35
+%label34:
+$tmp67 = move 0
+$tmp22 = move $tmp67
+jump %label36
+%label36:
+$tmp68 = sle $tmp22 9
+br $tmp68 %label37 %label38
+%label37:
+$tmp69 = mul $tmp21 10
+$tmp70 = add $tmp69 $tmp22
+$tmp71 = move $tmp16
+$tmp72 = move $tmp21
+$tmp72 = add $tmp72 1
+$tmp73 = mul $tmp72 4
+$tmp73 = add $tmp71 $tmp73
+$tmp74 = load 4 $tmp73 0
+$tmp75 = move $tmp74
+$tmp76 = move $tmp22
+$tmp76 = add $tmp76 1
+$tmp77 = mul $tmp76 4
+$tmp77 = add $tmp75 $tmp77
+store 4 $tmp77 $tmp70 0
+$tmp78 = move $tmp22
+$tmp22 = add $tmp22 1
+jump %label36
+%label38:
+$tmp79 = move $tmp21
+$tmp21 = add $tmp21 1
+jump %label33
+%label35:
+$tmp80 = move 0
+$tmp81 = move $tmp16
+$tmp82 = move 2
+$tmp82 = add $tmp82 1
+$tmp83 = mul $tmp82 4
+$tmp83 = add $tmp81 $tmp83
+$tmp84 = load 4 $tmp83 0
+$tmp85 = move $tmp84
+$tmp86 = move 10
+$tmp86 = add $tmp86 1
+$tmp87 = mul $tmp86 4
+$tmp87 = add $tmp85 $tmp87
+store 4 $tmp87 $tmp80 0
+$tmp88 = neg 2
+$tmp89 = move $tmp23
+$tmp90 = move 0
+$tmp90 = add $tmp90 1
+$tmp91 = mul $tmp90 4
+$tmp91 = add $tmp89 $tmp91
+$tmp92 = load 4 $tmp91 0
+$tmp93 = add $tmp92 0
+store 4 $tmp93 $tmp88 0
+$tmp94 = neg 10
+$tmp95 = move $tmp23
+$tmp96 = move $tmp16
+$tmp97 = move 2
+$tmp97 = add $tmp97 1
+$tmp98 = mul $tmp97 4
+$tmp98 = add $tmp96 $tmp98
+$tmp99 = load 4 $tmp98 0
+$tmp100 = move $tmp99
+$tmp101 = move 10
+$tmp101 = add $tmp101 1
+$tmp102 = mul $tmp101 4
+$tmp102 = add $tmp100 $tmp102
+$tmp103 = load 4 $tmp102 0
+$tmp104 = move $tmp103
+$tmp104 = add $tmp104 1
+$tmp105 = mul $tmp104 4
+$tmp105 = add $tmp95 $tmp105
+$tmp106 = load 4 $tmp105 0
+$tmp107 = add $tmp106 0
+store 4 $tmp107 $tmp94 0
+$tmp109 = move $tmp23
+$tmp110 = move 0
+$tmp110 = add $tmp110 1
+$tmp111 = mul $tmp110 4
+$tmp111 = add $tmp109 $tmp111
+$tmp112 = load 4 $tmp111 0
+$tmp114 = load 4 $tmp112 0
+$tmp108 = move $tmp114
+$tmp115 = move 18
+$tmp116 = move 12
+$tmp117 = move 6
+$tmp118 = call tak $tmp115 $tmp116 $tmp117
+$tmp108 = move $tmp118
+ret $tmp108
+}
